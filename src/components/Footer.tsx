@@ -11,6 +11,21 @@ const DEFAULT_TAGLINE = 'Creating positive impact through education, health, and
 
 const MAP_URL = 'https://maps.app.goo.gl/j5bXhnQBgcpVFtCc7';
 
+// Whatever background color an admin picks for the footer, the text needs to
+// stay readable — so text/icon/border colors switch between light-on-dark and
+// dark-on-light based on the actual chosen color's brightness, instead of
+// assuming the background is always dark.
+function isLightColor(hex: string): boolean {
+  const m = hex.replace('#', '');
+  if (!/^[0-9a-fA-F]{6}$/.test(m)) return false;
+  const r = parseInt(m.slice(0, 2), 16);
+  const g = parseInt(m.slice(2, 4), 16);
+  const b = parseInt(m.slice(4, 6), 16);
+  // Standard relative luminance
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.6;
+}
+
 function FacebookIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -72,6 +87,13 @@ export default function Footer() {
 
   const socialLinks = settings?.socialLinks || {};
   const currentYear = new Date().getFullYear();
+  const isLight = footerBgColor ? isLightColor(footerBgColor) : false;
+
+  const textMuted = isLight ? 'text-gray-600' : 'text-gray-300';
+  const textFaint = isLight ? 'text-gray-500' : 'text-gray-400';
+  const textFaintHover = isLight ? 'text-gray-500 hover:text-gray-900' : 'text-gray-400 hover:text-white';
+  const linkHover = isLight ? 'hover:text-gray-900' : 'hover:text-white';
+  const borderColor = isLight ? 'border-black/10' : 'border-white/10';
 
   const quickLinks = footerLinks
     .filter((link) => link.section === 'QUICK_LINKS')
@@ -83,7 +105,7 @@ export default function Footer() {
 
   return (
     <footer
-      className="bg-green-900 text-white"
+      className={`bg-green-900 ${isLight ? 'text-gray-900' : 'text-white'}`}
       style={footerBgColor ? { backgroundColor: footerBgColor } : undefined}
     >
       {/* Main Footer */}
@@ -94,7 +116,7 @@ export default function Footer() {
             <div className="flex items-center gap-3 mb-4">
               <h3 className="text-lg font-bold">Win Foundations</h3>
             </div>
-            <p className="text-gray-300 text-sm">
+            <p className={`${textMuted} text-sm`}>
               {settings?.footerTagline || DEFAULT_TAGLINE}
             </p>
             <div className="flex -ml-2.5 mt-4">
@@ -103,7 +125,7 @@ export default function Footer() {
                   href={socialLinks.facebook}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2.5 text-gray-400 hover:text-white transition"
+                  className={`p-2.5 ${textFaintHover} transition`}
                   title="Facebook"
                 >
                   <FacebookIcon />
@@ -114,7 +136,7 @@ export default function Footer() {
                   href={socialLinks.twitter}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2.5 text-gray-400 hover:text-white transition"
+                  className={`p-2.5 ${textFaintHover} transition`}
                   title="X (Twitter)"
                 >
                   <XIcon />
@@ -125,7 +147,7 @@ export default function Footer() {
                   href={socialLinks.linkedin}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2.5 text-gray-400 hover:text-white transition"
+                  className={`p-2.5 ${textFaintHover} transition`}
                   title="LinkedIn"
                 >
                   <LinkedinIcon />
@@ -136,7 +158,7 @@ export default function Footer() {
                   href={socialLinks.instagram}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2.5 text-gray-400 hover:text-white transition"
+                  className={`p-2.5 ${textFaintHover} transition`}
                   title="Instagram"
                 >
                   <InstagramIcon />
@@ -158,10 +180,10 @@ export default function Footer() {
           {quickLinks.length > 0 && (
             <div>
               <h4 className="text-md font-semibold mb-4">Quick Links</h4>
-              <ul className="space-y-2 text-sm text-gray-300">
+              <ul className={`space-y-2 text-sm ${textMuted}`}>
                 {quickLinks.map((link) => (
                   <li key={link.id}>
-                    <Link href={link.url} className="hover:text-white transition">
+                    <Link href={link.url} className={`${linkHover} transition`}>
                       {link.label}
                     </Link>
                   </li>
@@ -174,10 +196,10 @@ export default function Footer() {
           {getInvolvedLinks.length > 0 && (
             <div>
               <h4 className="text-md font-semibold mb-4">Get Involved</h4>
-              <ul className="space-y-2 text-sm text-gray-300">
+              <ul className={`space-y-2 text-sm ${textMuted}`}>
                 {getInvolvedLinks.map((link) => (
                   <li key={link.id}>
-                    <Link href={link.url} className="hover:text-white transition">
+                    <Link href={link.url} className={`${linkHover} transition`}>
                       {link.label}
                     </Link>
                   </li>
@@ -189,7 +211,7 @@ export default function Footer() {
           {/* Contact & Legal */}
           <div>
             <h4 className="text-md font-semibold mb-4">Contact</h4>
-            <div className="space-y-3 text-sm text-gray-300">
+            <div className={`space-y-3 text-sm ${textMuted}`}>
               {settings?.address && (
                 <div className="flex items-start space-x-2">
                   <MapPin size={16} className="mt-0.5 flex-shrink-0" />
@@ -197,7 +219,7 @@ export default function Footer() {
                     href={MAP_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:text-white"
+                    className={linkHover}
                   >
                     {settings.address}
                   </a>
@@ -206,7 +228,7 @@ export default function Footer() {
               {settings?.phone && (
                 <div className="flex items-center space-x-2">
                   <Phone size={16} />
-                  <a href={`tel:${settings.phone}`} className="hover:text-white">
+                  <a href={`tel:${settings.phone}`} className={linkHover}>
                     {settings.phone}
                   </a>
                 </div>
@@ -214,7 +236,7 @@ export default function Footer() {
               {settings?.email && (
                 <div className="flex items-center space-x-2">
                   <Mail size={16} />
-                  <a href={`mailto:${settings.email}`} className="hover:text-white">
+                  <a href={`mailto:${settings.email}`} className={linkHover}>
                     {settings.email}
                   </a>
                 </div>
@@ -222,7 +244,7 @@ export default function Footer() {
             </div>
             {(settings?.trust12A || settings?.trust80G) && (
               <div className="mt-6">
-                <p className="text-xs text-gray-400">
+                <p className={`text-xs ${textFaint}`}>
                   {settings?.trust12A && (
                     <>12A Registration: {settings.trust12A}<br /></>
                   )}
@@ -236,13 +258,13 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-green-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-300">
+        <div className={`border-t ${borderColor} mt-8 pt-8 flex flex-col md:flex-row justify-between items-center text-sm ${textMuted}`}>
           <p>&copy; {currentYear} Win Foundations. All rights reserved.</p>
           <div className="flex space-x-6 mt-4 md:mt-0">
-            <Link href="/privacy-policy" className="hover:text-white transition">
+            <Link href="/privacy-policy" className={`${linkHover} transition`}>
               Privacy Policy
             </Link>
-            <Link href="/terms-conditions" className="hover:text-white transition">
+            <Link href="/terms-conditions" className={`${linkHover} transition`}>
               Terms & Conditions
             </Link>
           </div>
