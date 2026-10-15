@@ -4,8 +4,17 @@ import { getUpdates, getUpdateBySlug } from '@/lib/api';
 import { notFound } from 'next/navigation';
 
 export async function generateStaticParams() {
-  const res = await getUpdates();
-  return res.data.map((u) => ({ slug: u.slug }));
+  // If the backend is unreachable at build time (e.g. CI building the
+  // frontend without a running backend), skip build-time static generation
+  // for this route rather than failing the whole build — dynamicParams
+  // defaults to true, so each slug is simply rendered on-demand at request
+  // time instead.
+  try {
+    const res = await getUpdates();
+    return res.data.map((u) => ({ slug: u.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {

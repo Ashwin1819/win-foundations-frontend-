@@ -22,8 +22,17 @@ function getYoutubeEmbedUrl(url: string): string | null {
 }
 
 export async function generateStaticParams() {
-  const initiatives = await getInitiatives();
-  return initiatives.map((init) => ({ slug: init.slug }));
+  // If the backend is unreachable at build time (e.g. CI building the
+  // frontend without a running backend), skip build-time static generation
+  // for this route rather than failing the whole build — dynamicParams
+  // defaults to true, so each slug is simply rendered on-demand at request
+  // time instead.
+  try {
+    const initiatives = await getInitiatives();
+    return initiatives.map((init) => ({ slug: init.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {

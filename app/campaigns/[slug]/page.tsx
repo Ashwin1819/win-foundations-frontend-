@@ -9,8 +9,17 @@ import CampaignGallery from '@/components/campaigns/CampaignGallery';
 import CampaignProductsSection from '@/components/campaigns/CampaignProductsSection';
 
 export async function generateStaticParams() {
-  const campaigns = await getCampaigns();
-  return campaigns.map((c) => ({ slug: c.slug }));
+  // If the backend is unreachable at build time (e.g. CI building the
+  // frontend without a running backend), skip build-time static generation
+  // for this route rather than failing the whole build — dynamicParams
+  // defaults to true, so each slug is simply rendered on-demand at request
+  // time instead.
+  try {
+    const campaigns = await getCampaigns();
+    return campaigns.map((c) => ({ slug: c.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {

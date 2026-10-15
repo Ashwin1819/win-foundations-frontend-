@@ -5,8 +5,18 @@ import { notFound } from 'next/navigation';
 import MediaStrip from '@/components/MediaStrip';
 
 export async function generateStaticParams() {
-  const blogs = await getBlogs();
-  return blogs.map((b) => ({ slug: b.slug }));
+  // If the backend is unreachable at build time (e.g. CI building the
+  // frontend without a running backend), skip build-time static generation
+  // for this route rather than failing the whole build — dynamicParams
+  // defaults to true, so each slug is simply rendered on-demand at request
+  // time instead, exactly as this page already handles a missing/unknown
+  // slug via getBlogBySlug's own .catch(() => null) + notFound() below.
+  try {
+    const blogs = await getBlogs();
+    return blogs.map((b) => ({ slug: b.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
