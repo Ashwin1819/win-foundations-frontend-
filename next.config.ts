@@ -13,6 +13,15 @@ const nextConfig: NextConfig = {
         port: backendOrigin.port || undefined,
         pathname: '/uploads/**',
       },
+      // Campaign product/cover images uploaded through the admin panel's
+      // Supabase Storage integration are served from Supabase's own domain,
+      // not the backend's — next/image refuses any host not explicitly
+      // whitelisted here, regardless of whether the URL itself is valid.
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+        pathname: '/storage/v1/object/public/**',
+      },
     ],
     // Next's SSRF guard blocks proxying images from hosts that resolve to a private/loopback
     // IP. In dev the backend genuinely is localhost, so allow it there only — a real deployed
