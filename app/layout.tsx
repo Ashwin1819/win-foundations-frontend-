@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Win Foundations - NGO",
+  title: "Win Foundations",
   description: "Creating positive impact through education, health, and community empowerment",
 };
 
